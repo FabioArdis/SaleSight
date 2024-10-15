@@ -15,7 +15,8 @@ int main()
 			 << "1. Import Sales Data (CSV)\n"
 			 << "2. Enter Sales Data Manually\n"
 			 << "3. View Sales Summary\n"
-			 << "4. Exit\n" << std:: endl;
+			 << "4. Export Sales Data (CSV)\n"
+			 << "5. Exit\n" << std:: endl;
 
 		cout << "Enter your choice: ";
 		cin >> choice;
@@ -65,13 +66,29 @@ int main()
 			break;
 
 		case 4:
+		{
+			string filename;
+			cout << "Enter the filename to export to: ";
+			cin >> filename;
+
+			if (data.exportToCSV(filename))
+			{
+				cout << "Data exported successfully to " << filename + ".csv" << ".\n";
+			} else {
+				cout << "Failed to export data.\n";
+			}
+
+			break;
+		}
+
+		case 5:
 			cout << "Exiting...\n";
 			break;
 
 		default:
 			cout << "Invalid choice. Try again.\n";
 		}
-	} while (choice != 4);
+	} while (choice != 5);
 
 	return 0;
 }

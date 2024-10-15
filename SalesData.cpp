@@ -75,3 +75,30 @@ bool SalesData::importFromCSV(const std::string &filename)
 
     return true;
 }
+
+bool SalesData::exportToCSV(const std::string &filename)
+{
+    std::string fname = filename + ".csv";
+
+    std::ofstream file(fname);
+
+    if(!file.is_open())
+    {
+        std::cerr << "Could not open file for writing: " << fname << std::endl;
+        return false;
+    }
+
+    file << "date,product,quantity,price\n";
+
+    for (const auto& record : records)
+    {
+        file << record.date << ','
+             << record.product << ','
+             << record.quantity << ','
+             << record.price << '\n';
+    }
+
+    file.close();
+
+    return true;
+}
