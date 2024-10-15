@@ -1,22 +1,77 @@
 #include "SalesData.hpp"
 #include "SalesRecord.hpp"
 
+using namespace std;
+
 int main() 
 {
 	SalesData data;
 
-	data.addRecord(SalesRecord("2024-10-14", "Item1", 10, 9.99));
-	data.addRecord(SalesRecord("2024-10-10", "Item2", 5, 19.99));
+	int choice;
 
-	data.displayRecords();
-
-	if (auto rec = data.getRecord(1); rec.has_value())
+	do 
 	{
-		std::cout << "Retrieved record: ";
-		rec->display();
-	} else {
-		std::cout << "Record not found." << std::endl;
-	}
-	
+		cout << "\n=== SaleSight ===\n"
+			 << "1. Import Sales Data (CSV)\n"
+			 << "2. Enter Sales Data Manually\n"
+			 << "3. View Sales Summary\n"
+			 << "4. Exit\n" << std:: endl;
+
+		cout << "Enter your choice: ";
+		cin >> choice;
+
+		switch (choice)
+		{
+		case 1:
+		{	
+			string filename;
+
+			cout << "Enter the CSV filename: ";
+			cin >> filename;
+
+			if (data.importFromCSV(filename))
+			{
+				cout << "Data imported successfully.\n";
+			} else {
+				cout << "Failed to import data.\n";
+			}
+
+			break;
+		}
+
+		case 2:
+		{
+			string date, product;
+			int quantity;
+			double price;
+
+			cout << "Enter date (YYYY-MM-MM): ";
+			cin >> date;
+			cout << "Enter product name: ";
+			cin >> product;
+			cout << "Enter quantity: ";
+			cin >> quantity;
+			cout << "Enter price: ";
+			cin >> price;
+
+			data.addRecord(SalesRecord(date, product, quantity, price));
+			cout << "Sales record added.\n";
+
+			break;
+		}
+
+		case 3:
+			data.displayRecords();
+			break;
+
+		case 4:
+			cout << "Exiting...\n";
+			break;
+
+		default:
+			cout << "Invalid choice. Try again.\n";
+		}
+	} while (choice != 4);
+
 	return 0;
 }

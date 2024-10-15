@@ -15,6 +15,7 @@ public:
     void addRecord(const SalesRecord& record);
     std::optional<SalesRecord> getRecord(size_t index) const;
     void displayRecords() const;
+    bool importFromCSV(const std::string& filename);
 };
 
 #endif
