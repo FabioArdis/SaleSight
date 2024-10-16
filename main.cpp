@@ -33,11 +33,13 @@ int main()
 			cout << "Enter the CSV filename: ";
 			cin >> filename;
 
-			if (data.importFromCSV(filename))
+			try
 			{
-				cout << "Data imported successfully.\n";
-			} else {
-				cout << "Failed to import data.\n";
+				data.importFromCSV(filename);
+			}
+			catch(const std::exception& e)
+			{
+				std::cerr << e.what() << '\n';
 			}
 
 			break;

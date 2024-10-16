@@ -1,5 +1,6 @@
 #include "gnuplot-iostream.h"
 #include "SalesData.hpp"
+#include "SaleSightExceptions.hpp"
 
 #include <map>
 #include <sstream>
@@ -38,27 +39,26 @@ void SalesData::displayRecords() const
 bool SalesData::importFromCSV(const std::string &filename)
 {
     std::string fname = filename + ".csv";
+
     if (!std::filesystem::exists(fname))
     {
-        std::cerr << "File does not exist: " << fname + ".csv" << std::endl;
+        throw FileOperationException("File does not exist: " + fname);
         return false;
     }
-
 
     std::ifstream file(fname);
 
     if (!file.is_open())
     {
-        std::cerr << "Could not open file: " << fname << std::endl;
+        throw FileOperationException("Could not open file: " + fname);
         return false;
     }
 
     std::string line;
 
-    while (getline(file, line))
+    while (getline(file, line)) 
     {
         std::istringstream ss(line);
-
         std::string date, product;
         int quantity;
         double price;
@@ -69,7 +69,12 @@ bool SalesData::importFromCSV(const std::string &filename)
             ss.ignore() &&
             ss >> price) 
         {
-            addRecord(SalesRecord(date, product, quantity, price));   
+            addRecord(SalesRecord(date, product, quantity, price));
+        }
+        else 
+        {
+            throw FileOperationException("Invalid line format: " + line);
+            return false;
         }
     }
 
@@ -86,7 +91,7 @@ bool SalesData::exportToCSV(const std::string &filename)
 
     if(!file.is_open())
     {
-        std::cerr << "Could not open file for writing: " << fname << std::endl;
+        throw FileOperationException("Could not open file for writing: " + fname);
         return false;
     }
 

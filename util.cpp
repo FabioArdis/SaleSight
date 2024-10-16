@@ -1,4 +1,5 @@
 #include "util.hpp"
+#include "SaleSightExceptions.hpp"
 #include <limits>
 #include <regex>
 #include <string>
@@ -9,17 +10,22 @@ std::optional<int> getiInput(const std::string &prompt)
 
     while (true)
     {
-        std::cout << prompt;        
-        std::cin >> value;
-
-        if (std::cin.fail())
+        try
+        {
+            std::cout << prompt;
+            std::cin >> value;
+            if (std::cin.fail())
+            {
+                throw InvalidInputException("Invalid input. Please enter a valid integer.");
+            }
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            return value;
+        }
+        catch(const InvalidInputException& e)
         {
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cout << "Invalid input, please enter a valid integer.\n";
-        } else {
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            return value;
+            std::cerr << e.what() << std::endl;
         }
     }
 }
@@ -30,17 +36,22 @@ std::optional<double> getdInput(const std::string& prompt)
 
     while (true)
     {
-        std::cout << prompt;
-        std::cin >> value;
-
-        if (std::cin.fail())
+        try
+        {
+            std::cout << prompt;
+            std::cin >> value;
+            if (std::cin.fail())
+            {
+                throw InvalidInputException("Invalid input. Please enter a valid number.");
+            }
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            return value;
+        }
+        catch(const InvalidInputException& e)
         {
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cout << "Invalid input, please enter a valid number.\n";
-        } else {
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            return value;
+            std::cerr << e.what() << std::endl;
         }
     }
 }
@@ -50,15 +61,27 @@ std::optional<std::string> getDateInput(const std::string &prompt)
     std::optional<std::string> value;
     std::string input;
 
-    std::cout << prompt;
-    std::cin >> input;
-
-    while (!isValidDate(input))
+    while (true)
     {
-        std::cout << "Invalid date format. Please enter in YYYY-MM-DD format.\n";
+        try
+        {
+            std::cout << prompt;
+            std::cin >> input;
+            
+            if (!isValidDate(input))
+            {
+                throw DateException("Invalid date format. Please enter in YYYY-MM-DD format.");
+            }
 
-        std::cout << prompt;
-        std::cin >> input;
+            value = input;
+
+            return value;
+        }
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << std::endl;
+        }
+        
     }
 
     value = input;
