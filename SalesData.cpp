@@ -1,5 +1,7 @@
+#include "gnuplot-iostream.h"
 #include "SalesData.hpp"
 
+#include <map>
 #include <sstream>
 #include <iomanip>
 #include <filesystem>
@@ -101,4 +103,76 @@ bool SalesData::exportToCSV(const std::string &filename)
     file.close();
 
     return true;
+}
+
+double SalesData::calculateTotalSales() const
+{
+    double total = 0.0;
+
+    for (const auto& record : records)
+    {
+        total += (record.quantity * record.price);
+    }
+
+    return total;
+}
+
+double SalesData::calculateAverageSalesPerProduct(const std::string &product) const
+{
+    double total = 0.0;
+
+    int count = 0;
+
+    for (const auto& record : records)
+    {
+        if (record.product == product)
+        {
+            total += (record.quantity * record.price);
+            count += record.quantity;
+        }
+    }
+
+    return count > 0 ? total / count : 0.0;
+}
+
+std::vector<SalesRecord> SalesData::filterByDateRange(const std::string &startDate, const std::string &endDate) const
+{
+    std::vector<SalesRecord> filteredRecords;
+
+    for (const auto& record : records)
+    {
+        if (record.date >= startDate && record.date <= endDate)
+        {
+            filteredRecords.push_back(record);
+        }
+    }
+
+    return filteredRecords;
+}
+
+void SalesData::plotTotalSalesByProduct() const
+{
+    std::map<std::string, double> productSales;
+
+    for (const auto& record : records)
+    {
+        productSales[record.product] += record.quantity * record.price;
+    }
+
+    std::vector<std::pair<std::string, double>> salesData;
+    for (const auto& entry : productSales)
+    {
+        salesData.emplace_back(entry.first, entry.second);
+    }
+
+    Gnuplot gp;
+
+    gp << "set title 'Total Sales by Product'\n";
+    gp << "set xlabel 'Product'\n";
+    gp << "set ylabel 'Total Sales ($)'\n";
+    gp << "set style data histograms\n";
+    gp << "set style fill solid 1.0 border -1\n";
+    gp << "plot '-' using 2:xtic(1) title 'Sales' with histograms\n";
+
+    gp.send1d(salesData);
 }

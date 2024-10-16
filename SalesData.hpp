@@ -17,6 +17,10 @@ public:
     void displayRecords() const;
     bool importFromCSV(const std::string& filename);
     bool exportToCSV(const std::string& filename);
+    double calculateTotalSales() const;
+    double calculateAverageSalesPerProduct(const std::string& product) const;
+    std::vector<SalesRecord> filterByDateRange(const std::string& startDate, const std::string& endDate) const;
+    void plotTotalSalesByProduct() const;
 };
 
 #endif
