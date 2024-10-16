@@ -7,7 +7,19 @@
 #include <iomanip>
 #include <filesystem>
 
-void SalesData::addRecord(const SalesRecord& record)
+SalesData::SalesData() : db(nullptr)
+{
+}
+
+SalesData::~SalesData()
+{
+    if (db)
+    {
+        sqlite3_close(db);
+    }
+}
+
+void SalesData::addRecord(const SalesRecord &record)
 {
     records.push_back(record);
 }
@@ -20,6 +32,44 @@ std::optional<SalesRecord> SalesData::getRecord(size_t index) const
     }
 
     return std::nullopt;
+}
+
+bool SalesData::recordExists(const std::string &date, const std::string &product) const
+{
+    for (const auto& record : records)
+    {
+        if (record.date == date && record.product == product)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool SalesData::recordExistsDB(const std::string &date, const std::string &product) const
+{
+    sqlite3_stmt* stmt;
+    std::string query = "SELECT COUNT(*) FROM sales WHERE date = ? AND product = ?";
+
+    if (sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK)
+    {
+        throw SQLiteOperationException("Failed to prepare statement: " + std::string(sqlite3_errmsg(db)));
+    }
+
+    sqlite3_bind_text(stmt, 1, date.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 2, product.c_str(), -1, SQLITE_STATIC);
+
+    int count = 0;
+
+    if (sqlite3_step(stmt) == SQLITE_ROW)
+    {
+        count = sqlite3_column_int(stmt, 0);
+    }
+
+    sqlite3_finalize(stmt);
+
+    return count > 0;
 }
 
 void SalesData::displayRecords() const
@@ -107,6 +157,109 @@ bool SalesData::exportToCSV(const std::string &filename)
 
     file.close();
 
+    return true;
+}
+
+bool SalesData::importFromDatabase(const std::string &filename)
+{
+    std::string dbName = filename + ".db";
+
+    if (!std::filesystem::exists(dbName))
+    {
+        throw SQLiteOperationException("Database does not exist: " + dbName);
+        return false;
+    }
+
+    if (sqlite3_open(dbName.c_str(), &db) != SQLITE_OK)
+    {
+        throw SQLiteOperationException("Could not open database: " + std::string(sqlite3_errmsg(db)));
+        return false;
+    }
+
+    std::string query = "SELECT date, product, quantity, price FROM sales";
+    sqlite3_stmt* stmt;
+
+    if (sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, nullptr) != SQLITE_OK)
+    {
+        throw SQLiteOperationException("Failed to prepare statement: " + std::string(sqlite3_errmsg(db)));
+        return false;
+    }
+
+    while (sqlite3_step(stmt) == SQLITE_ROW)
+    {
+        std::string date = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        std::string product = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        int quantity = sqlite3_column_int(stmt, 2);
+        double price = sqlite3_column_double(stmt, 3);
+
+        if (!recordExists(date, product))
+        {
+            addRecord(SalesRecord(date, product, quantity, price));
+        } else {
+            // Lo ignora
+        }
+    }
+
+    sqlite3_finalize(stmt);
+
+    return true;
+}
+
+bool SalesData::exportToDatabase(const std::string &filename)
+{
+    std::string dbName = filename + ".db";
+
+    if (sqlite3_open(dbName.c_str(), &db) != SQLITE_OK)
+    {
+        throw SQLiteOperationException("Could not open database: " + std::string(sqlite3_errmsg(db)));
+        return false;
+    }
+
+    std::string createTableQuery =
+        "CREATE TABLE IF NOT EXISTS sales ("
+        "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+        "date TEXT NOT NULL, "
+        "product TEXT NOT NULL, "
+        "quantity INTEGER NOT NULL, "
+        "price REAL NOT NULL);";
+    
+    if (sqlite3_exec(db, createTableQuery.c_str(), 0, 0, nullptr) != SQLITE_OK)
+    {
+        throw SQLiteOperationException("Failed to create table: " + std::string(sqlite3_errmsg(db)));
+        return false;
+    }
+
+    sqlite3_stmt* stmt;
+    std::string insertQuery = "INSERT INTO sales (date, product, quantity, price) VALUES (?, ?, ?, ?)";
+
+    if (sqlite3_prepare_v2(db, insertQuery.c_str(), -1, &stmt, nullptr) != SQLITE_OK)
+    {
+        throw SQLiteOperationException("Failed to prepare statement: " + std::string(sqlite3_errmsg(db)));
+        return false;
+    }
+
+    for (const auto& record : records)
+    {
+        if (!recordExistsDB(record.date, record.product))
+        {
+            sqlite3_bind_text(stmt, 1, record.date.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_text(stmt, 2, record.product.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_int(stmt, 3, record.quantity);
+            sqlite3_bind_double(stmt, 4, record.price);
+
+            if (sqlite3_step(stmt) != SQLITE_DONE)
+            {
+                throw SQLiteOperationException("Failed to insert data: " + std::string(sqlite3_errmsg(db)));
+            }
+
+            sqlite3_reset(stmt);
+        }
+
+        sqlite3_reset(stmt);
+    }
+
+    sqlite3_finalize(stmt);
+    
     return true;
 }
 

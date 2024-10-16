@@ -21,7 +21,9 @@ int main()
         	 << "6. Calculate Average Sales Per Product\n"
         	 << "7. Filter Sales By Date Range\n"
         	 << "8. Plot Total Sales by Product\n"
-			 << "9. Exit\n";
+			 << "9. Import Sales Data (SQL)\n"
+			 << "10. Export Sales Data (SQL)\n"
+			 << "0. Exit\n";
         choice = getiInput("Enter your choice: ");
 
 		switch (choice.value_or(-1))
@@ -138,15 +140,53 @@ int main()
 		case 8:
 			data.plotTotalSalesByProduct();
 			break;
-
+		
 		case 9:
+		{	
+			string filename;
+
+			cout << "Enter the DB filename: ";
+
+			cin >> filename;
+
+			try
+			{
+				data.importFromDatabase(filename);
+			}
+			catch(const std::exception& e)
+			{
+				std::cerr << e.what() << '\n';
+			}
+
+			break;
+		}
+
+		case 10:
+		{
+			string filename;
+
+			cout << "Enter the DB filename: ";
+
+			cin >> filename;
+
+			try
+			{
+				data.exportToDatabase(filename);
+			}
+			catch(const std::exception& e)
+			{
+				std::cerr << e.what() << '\n';
+			}
+		}
+
+		case 0:
 			cout << "Exiting...\n";
 			break;
 
 		default:
 			cout << "Invalid choice. Try again.\n";
 		}
-	} while (choice.value() != 9);
+	} while (choice.value() != 0);
 
 	return 0;
 }

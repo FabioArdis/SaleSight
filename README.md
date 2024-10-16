@@ -5,10 +5,11 @@ SaleSight is a Sales Reporting Tool developed in C++17. It allows users to manag
 ## Features
 
 - **Data Input**: Import sales data from CSV files or enter data manually.
-- **Data Storage**: Store sales records using file I/O.
+- **Data Storage**: Store sales records using SQLite for persistent data management.
 - **Sales Analysis**: Calculate total sales, average sales per product, and filter sales by date range.
 - **Reporting**: Generate summary reports and export data to CSV.
 - **Data Visualization**: Plot total sales by product using gnuplot.
+- **Error Handling**: Robust error handling for file operations and input validation.
 - **Unit Testing**: Comprehensive unit tests using Google Test to ensure code reliability.
   
 ## Requirements
@@ -18,6 +19,7 @@ SaleSight is a Sales Reporting Tool developed in C++17. It allows users to manag
 - [Boost](https://www.boost.org/) (for iostreams)
 - [gnuplot](http://www.gnuplot.info/) (for data visualization)
 - [Google Test](https://github.com/google/googletest) (for unit testing)
+- [SQLite](https://www.sqlite.org/) (for data storage)
 
 ## Installation
 
@@ -27,9 +29,9 @@ SaleSight is a Sales Reporting Tool developed in C++17. It allows users to manag
     cd SaleSight
     ```
 2. **Install dependencies**:
-- Make sure you have Boost, gnuplot and Google Test installed. You can usually install them via your package manager or build them yourself. For example, on Arch Linux:
+- Make sure you have Boost, gnuplot, Google Test and SQLite installed. You can usually install them via your package manager or build them yourself. For example, on Arch Linux:
     ```bash
-    sudo pacman -S boost gnuplot gtest
+    sudo pacman -S boost gnuplot gtest sqlite
     ```
 3. **Build the project**
     ```bash
@@ -77,3 +79,4 @@ This project is licensed under the MIT License. See the [LICENSE](https://github
 - [Boost](https://www.boost.org/) - C++ libraries.
 - [gnuplot](http://www.gnuplot.info/) - Graph plotting utility.
 - [Google Test ](https://github.com/google/googletest) - Framework for unit testing in C++.
+- [SQLite](https://www.sqlite.org/) - Lightweight database management system.

@@ -16,10 +16,14 @@ protected:
         salesData.addRecord(SalesRecord("2024-01-02", "ProductB", 2, 20.0));
         salesData.addRecord(SalesRecord("2024-01-02", "ProductC", 10, 5.0));
         salesData.addRecord(SalesRecord("2024-01-02", "ProductD", 15, 15.0));
+
+        salesData.exportToDatabase("test");
     }
 
     void TearDown() override
     {
+        std::filesystem::remove("test.db");
+        std::filesystem::remove("non_existent.db");
         std::filesystem::remove("test.csv");
         std::filesystem::remove("test_unwritable/test.csv");
     }
@@ -90,4 +94,26 @@ TEST_F(SalesDataTest, ExportToUnwritableLocation)
 
     std::filesystem::permissions("test_unwritable", std::filesystem::perms::all);
     std::filesystem::remove("test_unwritable");
+}
+
+TEST_F(SalesDataTest, InsertAndRetrieveRecords)
+{
+    salesData.addRecord(SalesRecord("2024-01-03", "ProductE", 10, 5.0));
+
+    salesData.exportToDatabase("test");
+
+    EXPECT_EQ(salesData.getRecords().size(), 5);
+
+    EXPECT_EQ(salesData.getRecord(4).value().date, "2024-01-03");
+    EXPECT_EQ(salesData.getRecord(4).value().product, "ProductE");
+    EXPECT_EQ(salesData.getRecord(4).value().quantity, 10);
+    EXPECT_EQ(salesData.getRecord(4).value().price, 5.0);
+}
+
+TEST_F(SalesDataTest, HandleSQLiteOperationException)
+{
+    EXPECT_THROW(
+        salesData.importFromDatabase("non_existent"),
+        SQLiteOperationException
+    );
 }

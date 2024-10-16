@@ -25,4 +25,11 @@ public:
         : std::runtime_error(message) {}
 };
 
+class SQLiteOperationException : public std::runtime_error
+{
+public:
+    explicit SQLiteOperationException(const std::string& message)
+        : std::runtime_error("SQLite Error: " + message) {}
+};
+
 #endif
