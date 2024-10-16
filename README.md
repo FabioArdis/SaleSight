@@ -9,6 +9,7 @@ SaleSight is a Sales Reporting Tool developed in C++17. It allows users to manag
 - **Sales Analysis**: Calculate total sales, average sales per product, and filter sales by date range.
 - **Reporting**: Generate summary reports and export data to CSV.
 - **Data Visualization**: Plot total sales by product using gnuplot.
+- **Unit Testing**: Comprehensive unit tests using Google Test to ensure code reliability.
   
 ## Requirements
 
@@ -16,6 +17,7 @@ SaleSight is a Sales Reporting Tool developed in C++17. It allows users to manag
 - CMake 3.10 or higher
 - [Boost](https://www.boost.org/) (for iostreams)
 - [gnuplot](http://www.gnuplot.info/) (for data visualization)
+- [Google Test](https://github.com/google/googletest) (for unit testing)
 
 ## Installation
 
@@ -25,9 +27,9 @@ SaleSight is a Sales Reporting Tool developed in C++17. It allows users to manag
     cd SaleSight
     ```
 2. **Install dependencies**:
-- Make sure you have Boost and gnuplot installed. You can usually install them via your package manager. For example, on Ubuntu:
+- Make sure you have Boost, gnuplot and Google Test installed. You can usually install them via your package manager or build them yourself. For example, on Arch Linux:
     ```bash
-    sudo apt-get install libboost-all-dev gnuplot
+    sudo pacman -S boost gnuplot gtest
     ```
 3. **Build the project**
     ```bash
@@ -38,7 +40,7 @@ SaleSight is a Sales Reporting Tool developed in C++17. It allows users to manag
     ```
 4. **Run the application**
     ```bash
-    ./salesight
+    make run
     ```
 
 ## Usage
@@ -53,9 +55,25 @@ date,product,quantity,price
 2024-01-02,Product B,5,9.99
 ```
 
+### Running Tests
+
+To run the unit tests, you can execute:
+
+```bash
+    make test
+```
+
+You can also run a specific unit test, like the one provided in this repo:
+
+```bash
+    ./test_salesdata
+```
+
+
 ## License
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/FabioArdis/SaleSight/blob/main/LICENSE) file for details.
 
 ## Acknowledgements
 - [Boost](https://www.boost.org/) - C++ libraries.
 - [gnuplot](http://www.gnuplot.info/) - Graph plotting utility.
+- [Google Test ](https://github.com/google/googletest) - Framework for unit testing in C++.
